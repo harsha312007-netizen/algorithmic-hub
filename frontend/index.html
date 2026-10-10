@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algorithmic Knowledge Base & Code Intelligence Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-100 selection:text-indigo-900">
+
+    <!-- Top Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+                    Ω
+                </div>
+                <div>
+                    <h1 class="text-base font-semibold text-slate-900 tracking-tight">Algorithmic Hub</h1>
+                    <p class="text-xs text-slate-500">Code Intelligence & Architecture Registry</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openModal('algoModal')" class="inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition-all">
+                    <span>+ Add Algorithm</span>
+                </button>
+                <button onclick="openModal('adrModal')" class="inline-flex items-center space-x-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition-all">
+                    <span>+ New ADR</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
+
+        <!-- Search & Filter Bar -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="relative w-full sm:w-96">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                    🔍
+                </span>
+                <input type="text" id="searchInput" oninput="filterHub()" placeholder="Search algorithms, data structures, complexities..." 
+                    class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+            </div>
+            <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0" id="categoryFilters">
+                <button onclick="filterCategory('All')" class="category-btn active px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-white transition-all whitespace-nowrap">All</button>
+                <button onclick="filterCategory('Data Structures')" class="category-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all whitespace-nowrap">Data Structures</button>
+                <button onclick="filterCategory('Concurrency')" class="category-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all whitespace-nowrap">Concurrency</button>
+            </div>
+        </div>
+
+        <!-- Grid Layout: Algorithms & Benchmarks -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left 2 Columns: Algorithmic Repository -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-slate-900">Optimized Implementations</h2>
+                    <span id="algoCount" class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">0 items</span>
+                </div>
+                
+                <div id="algoContainer" class="space-y-6">
+                    <!-- Dynamic Algorithm Cards populated via JS -->
+                </div>
+            </div>
+
+            <!-- Right Column: Analytics & ADRs -->
+            <div class="space-y-8">
+                <!-- Complexity Benchmarking Playground -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Asymptotic Benchmark</h3>
+                        <span class="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded">Live $O(N)$</span>
+                    </div>
+                    <p class="text-xs text-slate-500">Compare growth rates as input scale $N$ increases.</p>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs text-slate-600 font-medium">
+                            <span>Input Scale ($N$)</span>
+                            <span id="sliderValue">1,000</span>
+                        </div>
+                        <input type="range" id="scaleSlider" min="10" max="10000" step="10" value="1000" oninput="updateBenchmarkChart()"
+                            class="w-full accent-indigo-600 cursor-pointer">
+                    </div>
+
+                    <div class="h-48 relative">
+                        <canvas id="benchmarkChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Architecture Decision Records (ADRs) -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Architecture Decisions</h3>
+                        <span id="adrCount" class="text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-1 rounded-full">0 records</span>
+                    </div>
+                    <div id="adrContainer" class="space-y-4">
+                        <!-- Dynamic ADR Cards populated via JS -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal: Add Algorithm -->
+    <div id="algoModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-semibold text-slate-900">Add New Algorithm</h3>
+                <button onclick="closeModal('algoModal')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+            </div>
+            <form onsubmit="handleCreateAlgorithm(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Title</label>
+                    <input type="text" id="newAlgoTitle" required placeholder="e.g., Consistent Hashing Ring" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Category</label>
+                        <input type="text" id="newAlgoCategory" required placeholder="e.g., Distributed Systems" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Time Complexity</label>
+                        <input type="text" id="newAlgoTime" required placeholder="e.g., O(log N)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Space Complexity</label>
+                        <input type="text" id="newAlgoSpace" required placeholder="e.g., O(N)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Description</label>
+                    <textarea id="newAlgoDesc" rows="2" required placeholder="Brief description of the algorithm..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Python Code</label>
+                    <textarea id="newAlgoPython" rows="3" required placeholder="def my_algo(): ..." class="w-full px-3 py-2 font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal('algoModal')" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all">Save Algorithm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add ADR -->
+    <div id="adrModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base font-semibold text-slate-900">New Architecture Decision Record</h3>
+                <button onclick="closeModal('adrModal')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+            </div>
+            <form onsubmit="handleCreateADR(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Title</label>
+                        <input type="text" id="newAdrTitle" required placeholder="ADR-003: Redis Cache Layer" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Status</label>
+                        <select id="newAdrStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="Accepted">Accepted</option>
+                            <option value="Proposed">Proposed</option>
+                            <option value="Deprecated">Deprecated</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Context</label>
+                    <textarea id="newAdrContext" rows="2" required placeholder="What is the architectural challenge..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Decision</label>
+                    <textarea id="newAdrDecision" rows="2" required placeholder="What did we decide to implement..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-700 mb-1">Consequences</label>
+                    <textarea id="newAdrConsequences" rows="2" required placeholder="Trade-offs and outcomes..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal('adrModal')" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all">Save ADR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            Algorithmic Knowledge Base & Code Intelligence Hub &bull; Production Grade Demo
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
