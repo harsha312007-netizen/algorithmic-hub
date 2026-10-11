@@ -46,6 +46,19 @@ Leave the backend running. Open the repository's `frontend` folder in VS Code, r
 
 Alternatively, serve the `frontend` folder with any local static web server and open the URL it provides.
 
+## Deploy a public version
+
+The repository includes a Render Blueprint that serves both the frontend and API from one public URL. A MongoDB Atlas database is required for the hosted app.
+
+1. Create a free MongoDB Atlas cluster and a database user. In Atlas Network Access, allow connections from `0.0.0.0/0` so Render can connect; use a strong database password and never commit it.
+2. Copy the Atlas connection string and select the `algorithmic_hub` database, for example:
+   `mongodb+srv://<username>:<password>@<cluster-host>/algorithmic_hub?retryWrites=true&w=majority`
+   Replace the placeholders with your database credentials and cluster host. URL-encode any special characters in the username or password.
+3. Open [Render's Blueprint deployment page](https://render.com/deploy?repo=https://github.com/harsha312007-netizen/algorithmic-hub), connect the GitHub repository, and deploy the `render.yaml` Blueprint. Set `MONGO_URI` to the Atlas connection string when prompted.
+4. Once the service is live, open the `.onrender.com` URL shown in the Render dashboard and share that URL with your friends.
+
+The free Render web service may sleep when idle and take a short time to wake on the next visit. Keep the database URI private; do not add it to project files or GitHub.
+
 ## Contribute
 
 Create a branch for your work, then commit and push it:

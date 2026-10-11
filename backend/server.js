@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -228,6 +229,13 @@ app.get('/api/adrs', async (req, res) => {
     }
 });
 
+app.get('/api/health', (req, res) => {
+    const isDatabaseConnected = mongoose.connection.readyState === 1;
+    res.status(isDatabaseConnected ? 200 : 503).json({
+        status: isDatabaseConnected ? 'ok' : 'waiting for database'
+    });
+});
+
 app.post('/api/adrs', async (req, res) => {
     try {
         const newItem = new ADR(req.body);
@@ -237,6 +245,8 @@ app.post('/api/adrs', async (req, res) => {
         res.status(400).json({ error: err.message });
     }
 });
+
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 app.listen(PORT, () => {
     console.log(`Express server running on port ${PORT}`);

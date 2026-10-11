@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: algorithmic-hub
+    runtime: node
+    plan: free
+    buildCommand: npm ci --prefix backend
+    startCommand: npm start --prefix backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: MONGO_URI
+        sync: false
