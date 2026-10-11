@@ -9,7 +9,142 @@ let starsMap = {}; // Interactive star tracking
 document.addEventListener('DOMContentLoaded', () => {
     fetchData();
     initBenchmarkChart();
+    initChatbot();
 });
+
+function initChatbot() {
+    const panel = document.getElementById('chatPanel');
+    const toggle = document.getElementById('chatToggle');
+    const input = document.getElementById('chatInput');
+
+    const setOpen = (isOpen) => {
+        panel.classList.toggle('hidden', !isOpen);
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        if (isOpen) input.focus();
+    };
+
+    toggle.addEventListener('click', () => setOpen(panel.classList.contains('hidden')));
+    document.getElementById('chatClose').addEventListener('click', () => setOpen(false));
+    document.getElementById('chatForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+        sendChatMessage(input.value);
+        input.value = '';
+        input.focus();
+    });
+    document.getElementById('chatSuggestions').addEventListener('click', (event) => {
+        const button = event.target.closest('[data-chat-prompt]');
+        if (!button) return;
+        sendChatMessage(button.dataset.chatPrompt);
+    });
+}
+
+function sendChatMessage(message) {
+    const question = message.trim();
+    if (!question) return;
+
+    appendChatMessage(question, 'user');
+    appendChatMessage(getChatbotResponse(question), 'assistant');
+}
+
+function appendChatMessage(message, sender) {
+    const container = document.getElementById('chatMessages');
+    const bubble = document.createElement('div');
+    bubble.className = `chat-message chat-message-${sender}`;
+    bubble.textContent = message;
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+}
+
+function getChatbotResponse(question) {
+    const query = question.toLowerCase();
+    const words = query.match(/[a-z0-9]+/g) || [];
+
+    if (/\b(hi|hello|hey)\b/.test(query)) {
+        return 'Hi! Ask me to explain an algorithm, compare its complexity, or find an architecture decision.';
+    }
+
+    if (/\b(help|what can you do)\b/.test(query)) {
+        return 'I can find algorithms by name or category, summarize their time and space complexity, and look up saved architecture decisions. Try “Explain merge sort” or “List algorithms”.';
+    }
+
+    if (/\b(adr|adrs|architecture|decision records?)\b/.test(query)) {
+        if (adrs.length === 0) {
+            return 'There are no architecture decisions available right now. Make sure the backend is running and its data has loaded.';
+        }
+        return adrs.map((adr) =>
+            `${adr.title} (${adr.status})\nDecision: ${adr.decision}\nContext: ${adr.context}`
+        ).join('\n\n');
+    }
+
+    if (/\b(list|all|available|show)\b/.test(query) && /\b(algorithm|algorithms|snippet|snippets)\b/.test(query)) {
+        if (algorithms.length === 0) {
+            return 'I can’t find any algorithms yet. Make sure the backend is running and its data has loaded.';
+        }
+        return `Algorithms in the hub:\n${algorithms.map((algo) =>
+            `• ${algo.title} — time ${algo.time_complexity}, space ${algo.space_complexity || 'not specified'}`
+        ).join('\n')}`;
+    }
+
+    const complexityMatch = query.match(/o\s*\(\s*(?:1|n|n\s*log\s*n|log\s*n|n\s*\^\s*2|n2|n²)\s*\)/);
+    if (complexityMatch && /\b(complexity|complexities|algorithms|algorithm|which|what)\b/.test(query)) {
+        const requestedComplexity = complexityMatch[0].replace(/\s+/g, '').toLowerCase();
+        const complexityLabel = {
+            'o(1)': 'O(1)',
+            'o(n)': 'O(N)',
+            'o(nlogn)': 'O(N log N)',
+            'o(logn)': 'O(log N)',
+            'o(n^2)': 'O(N^2)',
+            'o(n2)': 'O(N^2)',
+            'o(n²)': 'O(N^2)'
+        }[requestedComplexity] || complexityMatch[0];
+        const matches = algorithms.filter((algo) =>
+            [algo.time_complexity, algo.space_complexity].some((value) =>
+                value && value.replace(/\s+/g, '').toLowerCase().includes(requestedComplexity)
+            )
+        );
+        if (matches.length > 0) {
+            return `Algorithms with ${complexityLabel} complexity:\n${matches.map((algo) =>
+                `• ${algo.title} — time ${algo.time_complexity}, space ${algo.space_complexity || 'not specified'}`
+            ).join('\n')}`;
+        }
+    }
+
+    const stopWords = new Set(['a', 'an', 'and', 'are', 'can', 'for', 'how', 'i', 'in', 'is', 'it', 'me', 'of', 'on', 'or', 'please', 'the', 'to', 'what', 'which', 'with', 'about', 'explain', 'tell', 'show', 'find', 'does', 'use', 'using', 'work']);
+    const terms = [...new Set(words.filter((word) => word.length > 1 && !stopWords.has(word)))];
+    const rankedAlgorithms = algorithms.map((algo) => {
+        const title = algo.title.toLowerCase();
+        const category = algo.category.toLowerCase();
+        const description = algo.description.toLowerCase();
+        const score = terms.reduce((total, term) =>
+            total + (title.includes(term) ? 5 : 0) +
+            (category.includes(term) ? 3 : 0) +
+            (description.includes(term) ? 2 : 0), 0
+        ) + (title.includes(query.trim()) ? 10 : 0);
+        return { algo, score };
+    }).filter((result) => result.score > 0)
+        .sort((a, b) => b.score - a.score);
+
+    if (rankedAlgorithms.length > 0) {
+        const { algo } = rankedAlgorithms[0];
+        let response = `${algo.title} (${algo.category})\nTime: ${algo.time_complexity}\nSpace: ${algo.space_complexity || 'not specified'}\n${algo.description}`;
+        if (/\b(code|implementation|python|javascript|cpp)\b/.test(query) && algo.code) {
+            const code = algo.code instanceof Map ? Object.fromEntries(algo.code) : algo.code;
+            const language = query.match(/\b(python|javascript|cpp)\b/)?.[0] || Object.keys(code)[0];
+            if (language && code[language]) {
+                response += `\n\n${language}:\n${code[language]}`;
+            }
+        }
+        if (rankedAlgorithms.length > 1 && rankedAlgorithms[1].score === rankedAlgorithms[0].score) {
+            response += `\n\nYou may also mean: ${rankedAlgorithms[1].algo.title}.`;
+        }
+        return response;
+    }
+
+    if (algorithms.length === 0 && adrs.length === 0) {
+        return 'The project data hasn’t loaded yet. Check that the backend and database are running, then try again.';
+    }
+    return 'I couldn’t find that in the saved hub data. Ask about an algorithm by name or category, request its complexity, or ask to list the architecture decisions.';
+}
 
 async function fetchData() {
     try {

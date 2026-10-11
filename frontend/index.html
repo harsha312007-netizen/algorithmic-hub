@@ -224,6 +224,39 @@
 
     </main>
 
+    <!-- Algorithm assistant -->
+    <section id="chatWidget" class="chat-widget" aria-label="CodeIntel Hub assistant">
+        <div id="chatPanel" class="chat-panel hidden">
+            <div class="chat-header">
+                <div>
+                    <h2 class="text-sm font-semibold">CodeIntel Assistant</h2>
+                    <p class="text-xs text-blue-100">Ask about algorithms and ADRs</p>
+                </div>
+                <button id="chatClose" type="button" class="chat-close" aria-label="Close chat">&times;</button>
+            </div>
+            <div id="chatMessages" class="chat-messages" role="log" aria-live="polite" aria-relevant="additions">
+                <div class="chat-message chat-message-assistant">
+                    Hi! I can look up algorithms, complexity, and architecture decisions in this hub. What would you like to know?
+                </div>
+            </div>
+            <div id="chatSuggestions" class="chat-suggestions" aria-label="Suggested questions">
+                <button type="button" data-chat-prompt="List the algorithms">List algorithms</button>
+                <button type="button" data-chat-prompt="Explain merge sort">Explain merge sort</button>
+                <button type="button" data-chat-prompt="Show architecture decisions">Architecture decisions</button>
+            </div>
+            <form id="chatForm" class="chat-form">
+                <label class="sr-only" for="chatInput">Message the CodeIntel assistant</label>
+                <input id="chatInput" type="text" maxlength="500" autocomplete="off" placeholder="Ask about an algorithm..." required>
+                <button type="submit" aria-label="Send message">Send</button>
+            </form>
+            <p class="chat-disclaimer">Answers use this project's saved data; no external AI service is connected.</p>
+        </div>
+        <button id="chatToggle" type="button" class="chat-toggle" aria-controls="chatPanel" aria-expanded="false">
+            <span aria-hidden="true">✦</span>
+            <span>Ask CodeIntel</span>
+        </button>
+    </section>
+
     <!-- Modal: Add Algorithm -->
     <div id="algoModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
