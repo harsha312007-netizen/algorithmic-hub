@@ -3,190 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Algorithmic Knowledge Base & Code Intelligence Hub</title>
+    <title>CodeIntel Hub - Interactive Algorithmic Engine & IDP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-indigo-100 selection:text-indigo-900">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-900">
 
     <!-- Top Navigation -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
-                    Ω
+                <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+                    ⚡
                 </div>
                 <div>
-                    <h1 class="text-base font-semibold text-slate-900 tracking-tight">Algorithmic Hub</h1>
-                    <p class="text-xs text-slate-500">Code Intelligence & Architecture Registry</p>
+                    <h1 class="text-base font-semibold text-slate-900 tracking-tight">CodeIntel Hub</h1>
+                    <p class="text-xs text-slate-500">Interactive Code Intelligence & IDP Engine</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="openModal('algoModal')" class="inline-flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition-all">
-                    <span>+ Add Algorithm</span>
+            
+            <div class="flex items-center space-x-4">
+                <div class="relative hidden md:block w-72">
+                    <input type="text" id="globalSearch" oninput="filterHub()" placeholder="Search algorithms, ADRs, services..." 
+                        class="w-full pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-500">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-xs">🔍</span>
+                </div>
+                <button onclick="openModal('algoModal')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-4 py-2 rounded-lg shadow-sm transition-all active:scale-95">
+                    + New Snippet
                 </button>
-                <button onclick="openModal('adrModal')" class="inline-flex items-center space-x-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-sm font-medium px-4 py-2 rounded-lg shadow-sm transition-all">
-                    <span>+ New ADR</span>
-                </button>
+                <div class="w-8 h-8 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-semibold text-blue-600" title="Active User">
+                    HV
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full space-y-8">
-
-        <!-- Search & Filter Bar -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div class="relative w-full sm:w-96">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
-                    🔍
-                </span>
-                <input type="text" id="searchInput" oninput="filterHub()" placeholder="Search algorithms, data structures, complexities..." 
-                    class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+    <!-- Sub-Navbar / Tabs -->
+    <nav class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
+            <div class="flex space-x-1 sm:space-x-3 overflow-x-auto">
+                <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium bg-slate-100 text-blue-600 transition-all">Dashboard</button>
+                <button onclick="switchTab('algorithms')" id="tab-algorithms" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all">Algorithms & Code</button>
+                <button onclick="switchTab('sandbox')" id="tab-sandbox" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all">⚡ Live Code Sandbox</button>
+                <button onclick="switchTab('adrs')" id="tab-adrs" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all">Architecture ADRs</button>
+                <button onclick="switchTab('benchmarks')" id="tab-benchmarks" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all">Benchmarks</button>
+                <button onclick="switchTab('idp')" id="tab-idp" class="tab-btn px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-all">IDP Registry</button>
             </div>
-            <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0" id="categoryFilters">
-                <button onclick="filterCategory('All')" class="category-btn active px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 text-white transition-all whitespace-nowrap">All</button>
-                <button onclick="filterCategory('Data Structures')" class="category-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all whitespace-nowrap">Data Structures</button>
-                <button onclick="filterCategory('Concurrency')" class="category-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all whitespace-nowrap">Concurrency</button>
+            <div class="hidden sm:flex items-center space-x-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Live Interactive Mode</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- TAB 1: DASHBOARD -->
+        <div id="view-dashboard" class="space-y-6 view-section">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-300 transition-all">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Algorithms</p>
+                    <h3 id="statTotalAlgo" class="text-3xl font-bold text-slate-900">0</h3>
+                    <p class="text-xs text-emerald-600 font-medium">+ active in registry</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-300 transition-all">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active ADRs</p>
+                    <h3 id="statTotalAdr" class="text-3xl font-bold text-slate-900">0</h3>
+                    <p class="text-xs text-blue-600 font-medium">100% compliance</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-300 transition-all">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Index Health</p>
+                    <h3 class="text-3xl font-bold text-slate-900">99.8%</h3>
+                    <p class="text-xs text-emerald-600 font-medium">Optimal latency</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2 hover:border-blue-300 transition-all">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">IDP Services</p>
+                    <h3 class="text-3xl font-bold text-slate-900">4</h3>
+                    <p class="text-xs text-slate-500 font-medium">Backstage Catalog</p>
+                </div>
+            </div>
+
+            <!-- Interactive quick actions widget -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">⚡ Quick Simulator Access</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Test algorithms instantly in our browser-based execution sandbox. Run sample inputs, evaluate time complexities, and verify outputs on the fly.
+                    </p>
+                    <button onclick="switchTab('sandbox')" class="bg-slate-900 hover:bg-blue-600 text-white text-xs font-medium px-4 py-2 rounded-lg transition-all">
+                        Launch Code Sandbox &rarr;
+                    </button>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">📊 Live Asymptotic Scaling</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Compare growth curves interactively using Chart.js benchmarks as input size $N$ scales up to 10,000 elements.
+                    </p>
+                    <button onclick="switchTab('benchmarks')" class="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-medium px-4 py-2 rounded-lg transition-all">
+                        View Benchmark Playground &rarr;
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Grid Layout: Algorithms & Benchmarks -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- Left 2 Columns: Algorithmic Repository -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-lg font-semibold text-slate-900">Optimized Implementations</h2>
-                    <span id="algoCount" class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">0 items</span>
-                </div>
-                
-                <div id="algoContainer" class="space-y-6">
-                    <!-- Dynamic Algorithm Cards populated via JS -->
+        <!-- TAB 2: ALGORITHMS & CODE -->
+        <div id="view-algorithms" class="space-y-6 view-section hidden">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 class="text-base font-semibold text-slate-900">Algorithms & Code Repository</h2>
+                <div class="flex items-center space-x-3">
+                    <select id="categoryFilterSelect" onchange="filterAlgorithmsByCategory()" class="bg-white border border-slate-200 text-xs text-slate-700 px-3 py-1.5 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="All">All Categories</option>
+                        <option value="Data Structures">Data Structures</option>
+                        <option value="Graph Theory">Graph Theory</option>
+                        <option value="Concurrency">Concurrency</option>
+                        <option value="Sorting & Searching">Sorting & Searching</option>
+                        <option value="Dynamic Programming">Dynamic Programming</option>
+                    </select>
+                    <span id="algoCount" class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">0 items</span>
                 </div>
             </div>
+            <div id="algoContainer" class="space-y-6"></div>
+        </div>
 
-            <!-- Right Column: Analytics & ADRs -->
-            <div class="space-y-8">
-                <!-- Complexity Benchmarking Playground -->
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Asymptotic Benchmark</h3>
-                        <span class="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded">Live $O(N)$</span>
+        <!-- TAB 3: LIVE CODE SANDBOX (NEW INTERACTIVE FEATURE) -->
+        <div id="view-sandbox" class="space-y-6 view-section hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-900">⚡ Interactive Code Execution Sandbox</h2>
+                        <p class="text-xs text-slate-500">Select an algorithm and run simulated inputs directly in your browser.</p>
                     </div>
-                    <p class="text-xs text-slate-500">Compare growth rates as input scale $N$ increases.</p>
-                    
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-xs text-slate-600 font-medium">
-                            <span>Input Scale ($N$)</span>
-                            <span id="sliderValue">1,000</span>
+                    <select id="sandboxAlgoSelect" onchange="loadSandboxAlgorithm()" class="bg-slate-50 border border-slate-200 text-xs font-medium text-slate-800 px-3 py-2 rounded-lg focus:outline-none focus:border-blue-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Test Input / Parameters (JSON format or comma-separated)</label>
+                            <textarea id="sandboxInput" rows="4" class="w-full p-3 font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500">[64, 34, 25, 12, 22, 11, 90]</textarea>
                         </div>
-                        <input type="range" id="scaleSlider" min="10" max="10000" step="10" value="1000" oninput="updateBenchmarkChart()"
-                            class="w-full accent-indigo-600 cursor-pointer">
+                        <button onclick="executeSandboxCode()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs py-2.5 rounded-lg shadow-sm transition-all flex items-center justify-center space-x-2">
+                            <span>▶ Run Simulation</span>
+                        </button>
                     </div>
 
-                    <div class="h-48 relative">
-                        <canvas id="benchmarkChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Architecture Decision Records (ADRs) -->
-                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Architecture Decisions</h3>
-                        <span id="adrCount" class="text-xs text-slate-500 font-medium bg-slate-100 px-2.5 py-1 rounded-full">0 records</span>
-                    </div>
-                    <div id="adrContainer" class="space-y-4">
-                        <!-- Dynamic ADR Cards populated via JS -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Execution Output Console</span>
+                            <span id="sandboxStatus" class="text-xs text-emerald-600 font-medium">Ready</span>
+                        </div>
+                        <pre id="sandboxOutput" class="w-full h-40 p-4 bg-slate-900 text-emerald-400 font-mono text-xs rounded-xl overflow-y-auto leading-relaxed">// Output will appear here after running simulation...</pre>
                     </div>
                 </div>
             </div>
-
         </div>
+
+        <!-- TAB 4: ARCHITECTURE ADRS -->
+        <div id="view-adrs" class="space-y-6 view-section hidden">
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-semibold text-slate-900">Architecture Decision Records</h2>
+                <span id="adrCount" class="text-xs font-medium text-slate-500 bg-slate-100 px-3 py-1 rounded-full">0 records</span>
+            </div>
+            <div id="adrContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </div>
+
+        <!-- TAB 5: BENCHMARKS -->
+        <div id="view-benchmarks" class="space-y-6 view-section hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Asymptotic Benchmark Playground</h3>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="triggerBenchmarkAnimation()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-all">🔄 Simulate Stress Test</button>
+                        <span class="text-xs text-blue-600 font-medium bg-blue-50 px-2.5 py-1 rounded">Live $O(N)$</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs text-slate-600 font-medium">
+                        <span>Input Scale ($N$)</span>
+                        <span id="sliderValue">1,000</span>
+                    </div>
+                    <input type="range" id="scaleSlider" min="10" max="10000" step="10" value="1000" oninput="updateBenchmarkChart()" class="w-full accent-blue-600 cursor-pointer">
+                </div>
+                <div class="h-80 relative">
+                    <canvas id="benchmarkChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: IDP REGISTRY -->
+        <div id="view-idp" class="space-y-6 view-section hidden">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-slate-900 uppercase tracking-wider">Internal Developer Platform (IDP) Services</h3>
+                    <button onclick="pingAllServices()" class="bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-600 transition-all">Ping All Services</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="idpServicesContainer">
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-blue-600">Service #1</span>
+                            <span id="service-status-1" class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">Healthy (12ms)</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900">auth-gateway-svc</h4>
+                        <p class="text-xs text-slate-600">Handles OAuth2 token exchange and route rate limiting.</p>
+                    </div>
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-blue-600">Service #2</span>
+                            <span id="service-status-2" class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">Healthy (24ms)</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900">algo-engine-worker</h4>
+                        <p class="text-xs text-slate-600">Asynchronous execution worker for code intelligence checks.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Modal: Add Algorithm -->
     <div id="algoModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <div class="flex items-center justify-between">
-                <h3 class="text-base font-semibold text-slate-900">Add New Algorithm</h3>
+                <h3 class="text-base font-semibold text-slate-900">Add New Snippet / Algorithm</h3>
                 <button onclick="closeModal('algoModal')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
             </div>
             <form onsubmit="handleCreateAlgorithm(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-700 mb-1">Title</label>
-                    <input type="text" id="newAlgoTitle" required placeholder="e.g., Consistent Hashing Ring" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                    <input type="text" id="newAlgoTitle" required placeholder="e.g., Consistent Hashing Ring" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-700 mb-1">Category</label>
-                        <input type="text" id="newAlgoCategory" required placeholder="e.g., Distributed Systems" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="newAlgoCategory" required placeholder="e.g., Distributed Systems" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-700 mb-1">Time Complexity</label>
-                        <input type="text" id="newAlgoTime" required placeholder="e.g., O(log N)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Space Complexity</label>
-                        <input type="text" id="newAlgoSpace" required placeholder="e.g., O(N)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="newAlgoTime" required placeholder="e.g., O(log N)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-700 mb-1">Description</label>
-                    <textarea id="newAlgoDesc" rows="2" required placeholder="Brief description of the algorithm..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
+                    <textarea id="newAlgoDesc" rows="2" required placeholder="Brief description..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-700 mb-1">Python Code</label>
-                    <textarea id="newAlgoPython" rows="3" required placeholder="def my_algo(): ..." class="w-full px-3 py-2 font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500"></textarea>
+                    <textarea id="newAlgoPython" rows="3" required placeholder="def snippet(): ..." class="w-full px-3 py-2 font-mono text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-500"></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeModal('algoModal')" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all">Save Algorithm</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal: Add ADR -->
-    <div id="adrModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-6 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between">
-                <h3 class="text-base font-semibold text-slate-900">New Architecture Decision Record</h3>
-                <button onclick="closeModal('adrModal')" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
-            </div>
-            <form onsubmit="handleCreateADR(event)" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Title</label>
-                        <input type="text" id="newAdrTitle" required placeholder="ADR-003: Redis Cache Layer" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-700 mb-1">Status</label>
-                        <select id="newAdrStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500">
-                            <option value="Accepted">Accepted</option>
-                            <option value="Proposed">Proposed</option>
-                            <option value="Deprecated">Deprecated</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Context</label>
-                    <textarea id="newAdrContext" rows="2" required placeholder="What is the architectural challenge..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Decision</label>
-                    <textarea id="newAdrDecision" rows="2" required placeholder="What did we decide to implement..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Consequences</label>
-                    <textarea id="newAdrConsequences" rows="2" required placeholder="Trade-offs and outcomes..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500"></textarea>
-                </div>
-                <div class="flex justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeModal('adrModal')" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-all">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-all">Save ADR</button>
+                    <button type="button" onclick="closeModal('algoModal')" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm">Save Snippet</button>
                 </div>
             </form>
         </div>
@@ -195,7 +265,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200 mt-auto py-6">
         <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            Algorithmic Knowledge Base & Code Intelligence Hub &bull; Production Grade Demo
+            CodeIntel Hub &bull; Interactive Algorithmic Engine & IDP &bull; Production Grade Demo
         </div>
     </footer>
 
